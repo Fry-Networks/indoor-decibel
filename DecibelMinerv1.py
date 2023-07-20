@@ -33,11 +33,8 @@ p = pyaudio.PyAudio()
 stream = p.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, frames_per_buffer=1024)
 mac = '-'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0,8*6,8)][::-1])
 
-with open("key.key", "rb") as key_file:
-    key = key_file.read()
-
-with open("config.json.enc", "rb") as file:
-    encrypted_config = file.read()
+key = "REDACTED_ROTATE_ME"
+encrypted_config = "gAAAAABkqffc0bs4ujeT2yCGSHI7KJH8Ayfep8ubxnzqQt1nFhLqttAVyKhepOVfJCSfMy1zzwQjO5i50ZKsK2AHhuxMeeZD0M-PzXP9EZwSSeWCmBmJKK-LfHKx_ps4dmV93GG-MjwXxlT69MoLcrjLw5oPkYzBAt60UBJqMK0OVzU07hO2RKs="
 
 cipher = Fernet(key)
 config = json.loads(cipher.decrypt(encrypted_config))
