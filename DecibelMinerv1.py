@@ -4,6 +4,8 @@ import datetime
 import os
 import pysftp
 import uuid
+from cryptography.fernet import Fernet
+import json
 
 def get_decibel(data):
     fourier = np.fft.fft(data)
@@ -17,13 +19,13 @@ def write_to_log(db, current_file):
     with open(current_file, 'a') as f:
         f.write(f"{now.strftime('%H:%M:%S')} - {db}\n")
 
-def upload_to_sftp(current_file, host, username, password):
+def upload_to_sftp(current_file, config):
     now = datetime.datetime.now()
     local_filename = current_file
     remote_filename = f"/home/fryscrypto/indoor_decibel/FRYdecibels_{mac}_{now.strftime('%m%d%Y_%H%M%S')}.log"
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None 
-    with pysftp.Connection(host, username=username, password=password, cnopts=cnopts) as sftp:
+    with pysftp.Connection(config['host'], username=config['username'], password=config['password'], cnopts=cnopts) as sftp:
         sftp.put(local_filename, remote_filename)
     os.remove(local_filename)  # removes local file after upload
 
@@ -31,10 +33,10 @@ p = pyaudio.PyAudio()
 stream = p.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, frames_per_buffer=1024)
 mac = '-'.join(['{:02x}'.format((uuid.getnode() >> i) & 0xff) for i in range(0,8*6,8)][::-1])
 
-# FTP Credentials
-ftp_host = '207.244.74.204'
-ftp_username = 'fryscrypto'
-ftp_password = 'Wtf.7001'
+key = "REDACTED_ROTATE_ME"
+encrypted_config = "gAAAAABkwnoDbd5YlaFDbdto6ThE3TLcxrtLL-GYhms-ioe4HLgjhsmGvJEcetda0TcbLyB2Q0DrMdKwSdlRdnEhscKn19aLFGjLGJ5ksXK3zFo4q70anf_VSCqd_5jTZD15ApF0euylcMBFccuuJijPMBnc-BBWY-DbsjIMQtNoqtfyint7mRb8effyuV7URq033e1fgbS7"
+cipher = Fernet(key)
+config = json.loads(cipher.decrypt(encrypted_config))
 
 last_upload_hour = datetime.datetime.now().hour
 # Initialize the current_file variable
@@ -51,7 +53,7 @@ while True:
     
     # Upload the file one minute before the top of the hour
     if now.minute == 59 and now.second == 0:
-        upload_to_sftp(current_file, ftp_host, ftp_username, ftp_password)
+        upload_to_sftp(current_file, config)
 
     # Update the filename at the top of the hour
     if now.minute == 0 and now.second == 0 and now.hour != last_upload_hour:
